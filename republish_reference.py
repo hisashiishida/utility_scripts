@@ -7,11 +7,12 @@
 import rospy 
 import PyKDL
 import click
+from typing import Type
 
 from geometry_msgs.msg import PoseStamped
 import rostopic
 
-def FrameFromPoseMsg(p):
+def FrameFromPoseMsg(p: PoseStamped)-> PyKDL.Frame:
     """
     :param p: input pose
     :type p: :class:`geometry_msgs.msg.Pose`
@@ -28,7 +29,7 @@ def FrameFromPoseMsg(p):
                                     p.position.y,
                                     p.position.z))
 
-def FrameToPoseMsg(f):
+def FrameToPoseMsg(f: PyKDL.Frame) ->PoseStamped:
     """
     :param f: input pose
     :type f: :class:`PyKDL.Frame`
@@ -44,7 +45,7 @@ def FrameToPoseMsg(f):
     return p
 
 class optical_tracker_crtk:
-    def __init__(self, ns_old, ns_new, topic_names, ref_name):
+    def __init__(self, ns_old: str, ns_new: str, topic_names: list, ref_name: str):
         ## Create dictionaries for the data
         self.topic_names = topic_names
         self.ref_name = ref_name
@@ -76,12 +77,23 @@ class optical_tracker_crtk:
         self.subs.append(sub)
         self.pubs.append(pub)
 
-    def measured_cp_cb(self, data, topic):
+    def measured_cp_cb(self, data: PoseStamped, topic: str):
+        """
+        :param data: rostopic data
+        :type data: PoseStamped
+        :param topic: rostopic name
+        :type topic: str
+
+        Callback functions that stores the rostopic data into dictionary
+        """
         self.data[topic] = FrameFromPoseMsg(data.pose)
         self.data_new[topic] = PyKDL.Frame(PyKDL.Rotation.Quaternion(0,0,0,1),PyKDL.Vector(0,0,0))
         self.is_new = True
     
     def change_reference(self):
+        """
+        Change the reference frame and store the data in data_new dictionary
+        """
         if self.is_new:
             for idx, topic in enumerate(self.topic_names):
                 self.data_new[topic] = self.data[self.ref_name].Inverse() *  self.data[topic]

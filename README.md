@@ -22,4 +22,4 @@ python3 republish_reference.py --ns1 /old --ns2 /new -t topic --ref reference
 ## ToDo
 ### Republishing the rostopics
 - Check wheather the topic is just receved or not
-- Add type hints and docstrings
+- (Done) Add type hints and docstrings
