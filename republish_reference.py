@@ -86,8 +86,11 @@ class optical_tracker_crtk:
             for idx, topic in enumerate(self.topic_names):
                 self.data_new[topic] = self.data[self.ref_name].Inverse() *  self.data[topic]
                 self.pubs[idx].publish(FrameToPoseMsg(self.data_new[topic]))
+            
+            self.data_new[self.ref_name] = self.data[self.ref_name].Inverse() *  self.data[self.ref_name]
+            self.pubs[-1].publish(FrameToPoseMsg(self.data_new[self.ref_name]))
+            
             self.is_new = False
-        
                 
 @click.command()
 @click.option('--ns1', help='old namespace')
